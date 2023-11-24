@@ -15,6 +15,9 @@
 *.vsidx
 *.pdb
 *.exe
+*.tlog
+*.idb
+*.res
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

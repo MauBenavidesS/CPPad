@@ -1,7 +1,11 @@
-#include <iostream>
 #include <Windows.h>
 #include <commdlg.h>
 #include <Richedit.h>
+
+// Libraries used in Debug
+#include <iostream>
+#include <string>
+
 
 #define MAX_FIND_REPLACE_LENGTH 256 // Adjust the length as needed
 
@@ -16,6 +20,8 @@
 #define IDOK    1
 #define IDCANCEL    2
 #define IDC_EDIT_TEXT    3
+#define IDC_FIND_EDIT    4
+#define IDC_REPLACE_EDIT    5
 
 class SimpleEditor {
 public:
@@ -164,10 +170,12 @@ private:
                 break;
 
             case ID_EDIT_FIND:
+                OutputDebugString(L"DEBUG FIND!\n");
                 ShowFindDialog();
                 break;
 
             case ID_EDIT_REPLACE:
+                OutputDebugString(L"DEBUG REPLACE!\n");
                 ShowReplaceDialog(hWnd);
                 break;
             }
@@ -282,12 +290,12 @@ private:
         if (FindText(&findReplace) == NULL) {
             DWORD dwError = CommDlgExtendedError();
             if (dwError != 0) {
-                std::cerr << "Error in FindText: " << dwError << std::endl;
             }
         }
     }
 
     void ShowReplaceDialog(HWND hwndDlg) {
+        OutputDebugString(L"DEBUG REPLACE 2!\n");
         FINDREPLACE findReplace;
         CHAR szFind[MAX_FIND_REPLACE_LENGTH];
         CHAR szReplace[MAX_FIND_REPLACE_LENGTH];
@@ -297,8 +305,13 @@ private:
 
         findReplace.lStructSize = sizeof(FINDREPLACE);
         findReplace.hwndOwner = hwndDlg;
-        findReplace.lpstrFindWhat = wszFind;
-        findReplace.lpstrReplaceWith = wszReplace;
+
+        HWND hFindEdit = GetDlgItem(hwndDlg, IDC_FIND_EDIT);
+        HWND hReplaceEdit = GetDlgItem(hwndDlg, IDC_REPLACE_EDIT);
+
+        // Assuming these edit controls contain the user-entered strings
+        GetWindowTextA(hFindEdit, szFind, MAX_FIND_REPLACE_LENGTH);
+        GetWindowTextA(hReplaceEdit, szReplace, MAX_FIND_REPLACE_LENGTH);
 
         // Convert ANSI to Unicode
         MultiByteToWideChar(CP_ACP, 0, szFind, -1, wszFind, MAX_FIND_REPLACE_LENGTH);
@@ -314,14 +327,15 @@ private:
 
         findReplace.Flags = FR_DOWN | FR_MATCHCASE;
 
+        // Display replace dialog
         if (ReplaceText(&findReplace) == NULL) {
             DWORD dwError = CommDlgExtendedError();
             if (dwError != 0) {
-                std::cerr << "Error in ReplaceText: " << dwError << std::endl;
+                OutputDebugString(L"DEBUG REPLACE 3!\n");
             }
         }
 
-        // Don't forget to free the allocated memory
+        // Free allocated memory
         delete[] findReplace.lpstrFindWhat;
         delete[] findReplace.lpstrReplaceWith;
     }
@@ -364,12 +378,14 @@ private:
     }
 
     INT_PTR CALLBACK ReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+        // Show a message box with the current message
         switch (message) {
         case WM_INITDIALOG:
             // Initialization logic here
             return TRUE;
 
         case WM_COMMAND:
+
             switch (LOWORD(wParam)) {
             case IDOK:
                 HandleOK(hwndDlg);
