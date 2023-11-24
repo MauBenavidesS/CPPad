@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="appTextEditor.rc" />
+    <ResourceCompile Include="dialog-box.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="appTextEditor.ico" />

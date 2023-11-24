@@ -1,4 +1,2 @@
 ﻿  appTextEditor.cpp
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(110,17): warning C4244: 'initializing': conversion from 'LRESULT' to 'int', possible loss of data
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(141,17): warning C4244: 'initializing': conversion from 'LRESULT' to 'int', possible loss of data
   appTextEditor.vcxproj -> C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\x64\Debug\appTextEditor.exe

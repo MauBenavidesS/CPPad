@@ -1,0 +1,13 @@
+// Edit control ID
+#define IDOK    1
+#define IDCANCEL    2
+#define IDC_EDIT_TEXT    3
+
+IDD_REPLACE_DIALOG DIALOG 0, 0, 200, 100
+CAPTION "Replace Dialog"
+{
+    CONTROL "OK", IDOK, BUTTON, 0x0001 | 0x40000000 | 0x1000, 70, 70, 50, 14
+        CONTROL "Cancel", IDCANCEL, BUTTON, 0x40000000, 130, 70, 50, 14
+        CONTROL "", IDC_EDIT_TEXT, EDIT, 0x40000000 | 0x50000000 | 0x0001, 10, 10, 180, 50
+        // Add other controls as needed
+}
