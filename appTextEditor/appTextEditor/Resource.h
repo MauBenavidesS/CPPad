@@ -15,6 +15,11 @@
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
+#define IDC_MAIN   800
+#define IDM_FIND  1000
+#define IDM_EXIT  1001 
+#define IDM_OPEN  1002 
+#define IDM_SAVE  1003 
 #endif
 // Next default values for new objects
 //

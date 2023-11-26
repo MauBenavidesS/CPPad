@@ -1,421 +1,284 @@
-#include <Windows.h>
-#include <commdlg.h>
-#include <Richedit.h>
-
-// Libraries used in Debug
-#include <iostream>
-#include <string>
-
-
-#define MAX_FIND_REPLACE_LENGTH 256 // Adjust the length as needed
-
-// Menu command IDs
-#define ID_FILE_OPEN     1001
-#define ID_FILE_SAVE     1002
-#define ID_EDIT_FIND     1003
-#define ID_EDIT_REPLACE  1004
-#define IDD_REPLACE_DIALOG  1005 // Use the appropriate value
-
-// Edit control ID
-#define IDOK    1
-#define IDCANCEL    2
-#define IDC_EDIT_TEXT    3
-#define IDC_FIND_EDIT    4
-#define IDC_REPLACE_EDIT    5
-
-class SimpleEditor {
-public:
-    SimpleEditor(HINSTANCE hInstance) : hInstance(hInstance), hWnd(nullptr), hEdit(nullptr), g_szFileName() {
-        Initialize();
-    }
-
-    int Run(int nCmdShow) {
-        // Create the main window
-        if (!CreateMainWindow()) {
-            return 1;
-        }
-
-        // Show and update the window
-        ShowWindow(hWnd, nCmdShow);
-        UpdateWindow(hWnd);
-
-        // Message loop
-        MSG msg;
-        while (GetMessage(&msg, nullptr, 0, 0)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        return static_cast<int>(msg.wParam);
-    }
-
-private:
-    HINSTANCE hInstance;
-    HWND hWnd;
-    HWND hEdit;
-    TCHAR g_szFileName[MAX_PATH];
-
-    void Initialize() {
-        hInstance = nullptr;
-        hWnd = nullptr;
-        hEdit = nullptr;
-        g_szFileName[0] = '\0';
-    }
-
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        SimpleEditor* pEditor;
-
-        if (message == WM_CREATE) {
-            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-            pEditor = reinterpret_cast<SimpleEditor*>(pCreate->lpCreateParams);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pEditor));
-        }
-        else {
-            pEditor = reinterpret_cast<SimpleEditor*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        }
-
-        if (pEditor) {
-            return pEditor->HandleMessage(hWnd, message, wParam, lParam);
-        }
-
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-
-    bool CreateMainWindow() {
-        WNDCLASSEX wcex;
-        wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WindowProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
-        wcex.hInstance = hInstance;
-        wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-        wcex.lpszMenuName = nullptr;
-        wcex.lpszClassName = L"SimpleEditorClass";
-        wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
-
-        if (!RegisterClassEx(&wcex)) {
-            MessageBox(nullptr, L"Call to RegisterClassEx failed!", L"Win32 Guided Tour", 0);
-            return false;
-        }
-
-        hWnd = CreateWindowEx(
-            0,
-            L"SimpleEditorClass",
-            L"Simple Text Editor",
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT,
-            CW_USEDEFAULT,
-            640,
-            480,
-            nullptr,
-            nullptr,
-            hInstance,
-            this
-        );
-
-        if (!hWnd) {
-            MessageBox(nullptr, L"Call to CreateWindow failed!", L"Win32 Guided Tour", 0);
-            return false;
-        }
-
-        hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
-            WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
-            0, 0, 500, 300, hWnd, nullptr, hInstance, nullptr);
-
-        if (!hEdit) {
-            MessageBox(nullptr, L"Call to CreateWindowEx for Edit control failed!", L"Win32 Guided Tour", 0);
-            return false;
-        }
-
-        // Create the menu bar
-        HMENU hMenu = CreateMenu();
-        HMENU hFileMenu = CreateMenu();
-
-        // Add "Open" and "Save" options to the "File" menu
-        AppendMenu(hFileMenu, MF_STRING, ID_FILE_OPEN, L"Open");
-        AppendMenu(hFileMenu, MF_STRING, ID_FILE_SAVE, L"Save");
-
-        // Add "Find" and "Replace" options to the "Edit" menu
-        HMENU hEditMenu = CreateMenu();
-        AppendMenu(hEditMenu, MF_STRING, ID_EDIT_FIND, L"Find");
-        AppendMenu(hEditMenu, MF_STRING, ID_EDIT_REPLACE, L"Replace");
-
-        // Add the "File" menu to the menu bar
-        AppendMenu(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hFileMenu), L"File");
-        AppendMenu(hMenu, MF_POPUP, reinterpret_cast<UINT_PTR>(hEditMenu), L"Edit");
-
-        // Set the menu bar for the window
-        SetMenu(hWnd, hMenu);
-
-        return true;
-    }
-
-    LRESULT HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        switch (message) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-
-        case WM_COMMAND: {
-            switch (LOWORD(wParam)) {
-            case ID_FILE_OPEN:
-                OpenFile();
-                break;
-
-            case ID_FILE_SAVE:
-                SaveFile();
-                break;
-
-            case ID_EDIT_FIND:
-                OutputDebugString(L"DEBUG FIND!\n");
-                ShowFindDialog();
-                break;
-
-            case ID_EDIT_REPLACE:
-                OutputDebugString(L"DEBUG REPLACE!\n");
-                ShowReplaceDialog(hWnd);
-                break;
-            }
-            break;
-        }
-
-        case WM_SIZE: {
-            MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
-            break;
-        }
-
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-
-        return 0;
-    }
-
-    void OpenFile() {
-        OPENFILENAME ofn;
-        TCHAR szFile[MAX_PATH];
-
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = hWnd;
-        ofn.lpstrFile = szFile;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = nullptr;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = nullptr;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        if (GetOpenFileName(&ofn)) {
-            lstrcpy(g_szFileName, ofn.lpstrFile);
-
-            // Read and display the content of the file
-            HANDLE hFile = CreateFile(g_szFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-            if (hFile != INVALID_HANDLE_VALUE) {
-                DWORD dwFileSize = GetFileSize(hFile, NULL);
-                if (dwFileSize > 0) {
-                    LPSTR lpContent = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
-                    if (lpContent != NULL) {
-                        DWORD dwRead;
-                        if (ReadFile(hFile, lpContent, dwFileSize, &dwRead, NULL)) {
-                            SetWindowTextA(hEdit, lpContent);
-                        }
-                        GlobalFree(lpContent);
-                    }
-                }
-                CloseHandle(hFile);
-            }
-        }
-    }
-
-    void SaveFile() {
-        OPENFILENAME ofn;
-        TCHAR szFile[MAX_PATH];
-
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = hWnd;
-        ofn.lpstrFile = szFile;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = nullptr;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = nullptr;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
-
-        if (GetSaveFileName(&ofn)) {
-            lstrcpy(g_szFileName, ofn.lpstrFile);
-
-            // Save the content to the file
-            HANDLE hFile = CreateFile(g_szFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-            if (hFile != INVALID_HANDLE_VALUE) {
-                DWORD dwTextLength = GetWindowTextLength(hEdit);
-                LPSTR lpContent = (LPSTR)GlobalAlloc(GPTR, dwTextLength + 1);
-                if (lpContent != NULL) {
-                    GetWindowTextA(hEdit, lpContent, dwTextLength + 1);
-                    DWORD dwWritten;
-                    WriteFile(hFile, lpContent, dwTextLength, &dwWritten, NULL);
-                    GlobalFree(lpContent);
-                }
-                CloseHandle(hFile);
-            }
-        }
-    }
-
-    void ShowFindDialog() {
-        FINDREPLACE findReplace;
-        CHAR szFind[MAX_FIND_REPLACE_LENGTH];
-        WCHAR wszFind[MAX_FIND_REPLACE_LENGTH]; // Wide character buffer
-
-        ZeroMemory(&findReplace, sizeof(FINDREPLACE));
-        findReplace.lStructSize = sizeof(FINDREPLACE);
-        findReplace.hwndOwner = hWnd;
-
-        // Assume that szFind contains the search string in ANSI encoding
-        // Convert ANSI to Unicode
-        MultiByteToWideChar(CP_ACP, 0, szFind, -1, wszFind, MAX_FIND_REPLACE_LENGTH);
-
-        // Use the wide character buffer for lpstrFindWhat
-        findReplace.lpstrFindWhat = wszFind;
-
-        findReplace.Flags = FR_DOWN | FR_MATCHCASE;
-
-        if (FindText(&findReplace) == NULL) {
-            DWORD dwError = CommDlgExtendedError();
-            if (dwError != 0) {
-            }
-        }
-    }
-
-    void ShowReplaceDialog(HWND hwndDlg) {
-        OutputDebugString(L"DEBUG REPLACE 2!\n");
-        FINDREPLACE findReplace;
-        CHAR szFind[MAX_FIND_REPLACE_LENGTH];
-        CHAR szReplace[MAX_FIND_REPLACE_LENGTH];
-        WCHAR wszFind[MAX_FIND_REPLACE_LENGTH];
-        WCHAR wszReplace[MAX_FIND_REPLACE_LENGTH];
-        ZeroMemory(&findReplace, sizeof(FINDREPLACE));
-
-        findReplace.lStructSize = sizeof(FINDREPLACE);
-        findReplace.hwndOwner = hwndDlg;
-
-        HWND hFindEdit = GetDlgItem(hwndDlg, IDC_FIND_EDIT);
-        HWND hReplaceEdit = GetDlgItem(hwndDlg, IDC_REPLACE_EDIT);
-
-        // Assuming these edit controls contain the user-entered strings
-        GetWindowTextA(hFindEdit, szFind, MAX_FIND_REPLACE_LENGTH);
-        GetWindowTextA(hReplaceEdit, szReplace, MAX_FIND_REPLACE_LENGTH);
-
-        // Convert ANSI to Unicode
-        MultiByteToWideChar(CP_ACP, 0, szFind, -1, wszFind, MAX_FIND_REPLACE_LENGTH);
-        MultiByteToWideChar(CP_ACP, 0, szReplace, -1, wszReplace, MAX_FIND_REPLACE_LENGTH);
-
-        // Allocate memory for the Unicode strings
-        findReplace.lpstrFindWhat = new WCHAR[MAX_FIND_REPLACE_LENGTH];
-        findReplace.lpstrReplaceWith = new WCHAR[MAX_FIND_REPLACE_LENGTH];
-
-        // Copy content into the allocated buffers
-        wcscpy_s(findReplace.lpstrFindWhat, MAX_FIND_REPLACE_LENGTH, wszFind);
-        wcscpy_s(findReplace.lpstrReplaceWith, MAX_FIND_REPLACE_LENGTH, wszReplace);
-
-        findReplace.Flags = FR_DOWN | FR_MATCHCASE;
-
-        // Display replace dialog
-        if (ReplaceText(&findReplace) == NULL) {
-            DWORD dwError = CommDlgExtendedError();
-            if (dwError != 0) {
-                OutputDebugString(L"DEBUG REPLACE 3!\n");
-            }
-        }
-
-        // Free allocated memory
-        delete[] findReplace.lpstrFindWhat;
-        delete[] findReplace.lpstrReplaceWith;
-    }
-
-    void HandleOK(HWND hwndDlg) {
-        // User clicked OK, continue with the replace operation
-        // ...
-        EndDialog(hwndDlg, IDOK);
-    }
-
-    void HandleCancel(HWND hwndDlg) {
-        // User clicked Cancel, handle as needed
-        // ...
-        EndDialog(hwndDlg, IDCANCEL);
-    }
-
-    void HandleEditText(HWND hwndDlg) {
-        // Handle events related to the edit control
-        // For example, you can use GetDlgItemText to get the text from the edit control.
-        // ...
-
-        // Notify the dialog that you've handled the event
-        EndDialog(hwndDlg, IDC_EDIT_TEXT);
-    }
-
-    static INT_PTR CALLBACK ReplaceDialogProcStatic(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-        SimpleEditor* pEditor;
-
-        if (message == WM_INITDIALOG) {
-            SetWindowLongPtr(hwndDlg, GWLP_USERDATA, static_cast<LONG_PTR>(lParam));
-        }
-
-        pEditor = reinterpret_cast<SimpleEditor*>(GetWindowLongPtr(hwndDlg, GWLP_USERDATA));
-
-        if (pEditor) {
-            return pEditor->ReplaceDialogProc(hwndDlg, message, wParam, lParam);
-        }
-
-        return FALSE;
-    }
-
-    INT_PTR CALLBACK ReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-        // Show a message box with the current message
-        switch (message) {
-        case WM_INITDIALOG:
-            // Initialization logic here
-            return TRUE;
-
-        case WM_COMMAND:
-
-            switch (LOWORD(wParam)) {
-            case IDOK:
-                HandleOK(hwndDlg);
-                return TRUE;
-
-            case IDCANCEL:
-                HandleCancel(hwndDlg);
-                return TRUE;
-
-            case IDC_EDIT_TEXT:
-                HandleEditText(hwndDlg);
-                return TRUE;
-            }
-            break;
-
-            // Handle additional messages if needed
-
-        default:
-            return FALSE;
-        }
-
-        return FALSE;
-    }
-
-};
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
-    SimpleEditor editor(hInstance);
-    return editor.Run(nCmdShow);
+#include <windows.h>
+#include <tchar.h>
+#include "resource.h"
+
+////AWK something to search...
+const TCHAR testdata[] =
+_T("A \"Hello world\" program is a computer program that outputs \"Hello, world\" on a display")
+_T(" device. Because it is typically one of the simplest programs possible in most programming")
+_T(" languages, it is by tradition often used to illustrate to beginners the most basic syntax")
+_T(" of a programming language, or to verify that a language or system is operating correctly.\r\n")
+_T("")
+_T("In a device that does not display text, a simple program to produce a signal, such as")
+_T(" turning on an LED, is often substituted for \"Hello world\" as the introductory program.");
+//// Text from:
+//// Hello world program
+//// http://en.wikipedia.org/wiki/Hello_world_program
+
+HWND hEdit;
+TCHAR g_szFileName[MAX_PATH];
+
+HINSTANCE hInst = NULL;
+
+//// AWT init uFindReplaceMsg at global scope
+////UINT uFindReplaceMsg;  // message identifier for FINDMSGSTRING 
+const UINT uFindReplaceMsg = RegisterWindowMessage(FINDMSGSTRING);//Regestering FINDMSGSTRING
+HWND hdlg = NULL;     // handle to Find dialog box
+
+int findFrom = 0;
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+//// AWK Pretend file search; searches text which is assumed to be
+//// in step with the read-only edit control
+int SearchFile(const TCHAR* find, BOOL down, BOOL ignoreCase)
+{
+	if (0 < _tcslen(find))
+	{
+		const TCHAR* start = &testdata[findFrom];
+		const TCHAR* pos = _tcsstr(start, find);
+
+		if (NULL != pos)
+		{
+			int foundAt = (pos - testdata);
+			findFrom = foundAt + _tcslen(find);
+			return foundAt;
+		}
+	}
+
+	findFrom = 0;
+	return -1;
+}
+
+
+// Function to open a file
+void OpenFile(HWND hWnd) {
+	OPENFILENAME ofn;
+	TCHAR szFile[MAX_PATH];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = TEXT("Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	if (GetOpenFileName(&ofn)) {
+		lstrcpy(g_szFileName, ofn.lpstrFile);
+		// Read and display the content of the file
+		HANDLE hFile = CreateFile(g_szFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile != INVALID_HANDLE_VALUE) {
+			DWORD dwFileSize = GetFileSize(hFile, NULL);
+			if (dwFileSize > 0) {
+				LPSTR lpContent = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
+				if (lpContent != NULL) {
+					DWORD dwRead;
+					if (ReadFile(hFile, lpContent, dwFileSize, &dwRead, NULL)) {
+						SetWindowTextA(hEdit, lpContent);
+					}
+					GlobalFree(lpContent);
+				}
+			}
+			CloseHandle(hFile);
+		}
+	}
+}
+
+// Function to save a file
+void SaveFile(HWND hWnd) {
+	OPENFILENAME ofn;
+	TCHAR szFile[MAX_PATH];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = TEXT("Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+	if (GetSaveFileName(&ofn)) {
+		lstrcpy(g_szFileName, ofn.lpstrFile);
+		// Save the content to the file
+		HANDLE hFile = CreateFile(g_szFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile != INVALID_HANDLE_VALUE) {
+			DWORD dwTextLength = GetWindowTextLength(hEdit);
+			LPSTR lpContent = (LPSTR)GlobalAlloc(GPTR, dwTextLength + 1);
+			if (lpContent != NULL) {
+				GetWindowTextA(hEdit, lpContent, dwTextLength + 1);
+				DWORD dwWritten;
+				WriteFile(hFile, lpContent, dwTextLength, &dwWritten, NULL);
+				GlobalFree(lpContent);
+			}
+			CloseHandle(hFile);
+		}
+	}
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	PSTR szCmdLine, int iCmdShow)
+{
+	static TCHAR szAppName[] = TEXT("TextFind Demo"); //// AWK
+	HWND         hwnd;
+	MSG          msg;
+	WNDCLASS     wndclass = { 0 }; //// AWK zero struct
+
+	hInst = hInstance; //// AWK remember instance 
+
+	wndclass.style = CS_HREDRAW | CS_VREDRAW;
+	wndclass.lpfnWndProc = WndProc;
+	wndclass.cbClsExtra = 0;
+	wndclass.cbWndExtra = 0;
+	wndclass.hInstance = hInstance;
+	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wndclass.hbrBackground = NULL; //// AWK was (HBRUSH) GetStockObject (WHITE_BRUSH) ;
+	wndclass.lpszMenuName = MAKEINTRESOURCE(IDC_MAIN); //// AWK added menu (was NULL)
+	wndclass.lpszClassName = szAppName;
+
+	if (!RegisterClass(&wndclass))
+	{
+		MessageBox(NULL, TEXT("Program requires Windows NT!"),
+			szAppName, MB_ICONERROR);
+		return 0;
+	}
+
+	hwnd = CreateWindow(szAppName, TEXT("Find Text in Edit Control Demo"),
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL, NULL, hInstance, NULL);
+
+	ShowWindow(hwnd, iCmdShow);
+	UpdateWindow(hwnd);
+	//// init now done at global scope
+	//// uFindReplaceMsg = RegisterWindowMessage(FINDMSGSTRING);//Regestering FINDMSGSTRING
+
+
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg); //Getting access violation after creating Find dilog box & green arrow showing here.
+	}
+	return msg.wParam;
+}
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	static HWND hEdit = NULL;
+	static HBRUSH hbrWhite = (HBRUSH)GetStockObject(WHITE_BRUSH);
+
+	switch (message)
+	{
+	case WM_CREATE:
+		hEdit = CreateWindow(_T("EDIT"), testdata,
+			WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY | ES_NOHIDESEL,
+			0, 0, 0, 0, hwnd, (HMENU)100, hInst, NULL);
+		return 0;
+
+	case WM_SIZE:
+		if (NULL != hEdit)
+			MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), FALSE);
+		return 0;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDM_OPEN:
+			OpenFile(hwnd);
+			return 0;
+		case IDM_SAVE:
+			SaveFile(hwnd);
+			return 0;
+		case IDM_FIND:
+			//// Need to be static as their addresses are being used later
+			static FINDREPLACE fr;       // common dialog box structure
+			// Owner window is passed to us
+			static WCHAR szFindWhat[80];  // buffer receiving string
+
+			// Initialize FINDREPLACE
+			ZeroMemory(&fr, sizeof(fr));
+			fr.lStructSize = sizeof(fr);
+			fr.hwndOwner = hwnd;
+			fr.lpstrFindWhat = szFindWhat;
+			fr.wFindWhatLen = 80;
+			fr.Flags = 0;
+
+			hdlg = FindText(&fr);
+			return 0;
+
+		case IDM_EXIT:
+			DestroyWindow(hwnd);
+			return 0;
+
+
+		}
+		break;
+
+		//// Make read-only Edit control white
+	case WM_CTLCOLORSTATIC:
+		return (LRESULT)hbrWhite;
+
+	case WM_PAINT://paint operation
+		return 0;
+
+		//// Edit control handles its own background, so do not
+		//// repaint background (avoids flicker.)
+	case WM_ERASEBKGND:
+		return TRUE;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	default:
+		LPFINDREPLACE lpfr;
+
+		if (message == uFindReplaceMsg)
+		{
+			// Get pointer to FINDREPLACE structure from lParam.
+			lpfr = (LPFINDREPLACE)lParam;
+
+			// If the FR_DIALOGTERM flag is set, 
+			// invalidate the handle that identifies the dialog box. 
+			if (lpfr->Flags & FR_DIALOGTERM)
+			{
+				hdlg = NULL;
+				return 0;
+			}
+
+			// If the FR_FINDNEXT flag is set, 
+			// call the application-defined search routine
+			// to search for the requested string. 
+			if (lpfr->Flags & FR_FINDNEXT)
+			{
+				////For illustrative purposes, just highlight words in Edit control
+				int find = SearchFile(lpfr->lpstrFindWhat,
+					(BOOL)(lpfr->Flags & FR_DOWN),
+					(BOOL)(lpfr->Flags & FR_MATCHCASE));
+				if (-1 == find)
+				{
+					PostMessage(hEdit, EM_SETSEL, (WPARAM)-1, (LPARAM)0);
+				}
+				else
+				{
+					int to = (find + _tcslen(lpfr->lpstrFindWhat));
+					PostMessage(hEdit, EM_SETSEL, (WPARAM)find, (LPARAM)to);
+				}
+			}
+
+			return 0;
+		}
+		else
+			return DefWindowProc(hwnd, message, wParam, lParam);
+
+	}
+	return 0;
 }
