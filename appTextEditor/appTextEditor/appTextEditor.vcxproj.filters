@@ -40,6 +40,9 @@
     <ResourceCompile Include="customDialogBox.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="customFindDialogBox.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">

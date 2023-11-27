@@ -138,6 +138,7 @@
   <ItemGroup>
     <ResourceCompile Include="appTextEditor.rc" />
     <ResourceCompile Include="customDialogBox.rc" />
+    <ResourceCompile Include="customFindDialogBox.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="appTextEditor.ico" />

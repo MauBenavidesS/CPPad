@@ -89,12 +89,12 @@ void OpenFile(HWND hWnd) {
 }
 
 // Function to save a file
-void SaveFile(HWND hWnd) {
+void SaveFile(HWND hwnd) {
 	OPENFILENAME ofn;
 	TCHAR szFile[MAX_PATH];
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = hWnd;
+	ofn.hwndOwner = hwnd;
 	ofn.lpstrFile = szFile;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = sizeof(szFile);
@@ -120,6 +120,26 @@ void SaveFile(HWND hWnd) {
 			CloseHandle(hFile);
 		}
 	}
+}
+
+void FindDialog(HWND hwnd) {
+	//// Need to be static as their addresses are being used later
+	static FINDREPLACE fr;       // common dialog box structure
+	// Owner window is passed to us
+	static WCHAR szFindWhat[80];  // buffer receiving string
+
+	// Initialize FINDREPLACE
+	ZeroMemory(&fr, sizeof(fr));
+	fr.lStructSize = sizeof(fr);
+	fr.hwndOwner = hwnd;
+	fr.lpstrFindWhat = szFindWhat;
+	fr.wFindWhatLen = 80;
+	fr.Flags = FR_ENABLETEMPLATE | FR_DIALOGTERM;
+	//fr.Flags = 0;
+	fr.lpTemplateName = MAKEINTRESOURCE(IDD_FIND_DIALOG); // Set your dialog template resource ID
+	//fr.lpTemplateName = 0;
+
+	hdlg = FindText(&fr);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -197,21 +217,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_SAVE:
 			SaveFile(hwnd);
 			return 0;
-		case IDM_FIND:
-			//// Need to be static as their addresses are being used later
-			static FINDREPLACE fr;       // common dialog box structure
-			// Owner window is passed to us
-			static WCHAR szFindWhat[80];  // buffer receiving string
-
-			// Initialize FINDREPLACE
-			ZeroMemory(&fr, sizeof(fr));
-			fr.lStructSize = sizeof(fr);
-			fr.hwndOwner = hwnd;
-			fr.lpstrFindWhat = szFindWhat;
-			fr.wFindWhatLen = 80;
-			fr.Flags = 0;
-
-			hdlg = FindText(&fr);
+		case IDD_FIND_DIALOG:
+			FindDialog(hwnd);
 			return 0;
 
 		case IDM_EXIT:
