@@ -16,10 +16,17 @@
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #define IDC_MAIN   800
-#define IDM_FIND  1000
 #define IDM_EXIT  1001 
 #define IDM_OPEN  1002 
 #define IDM_SAVE  1003 
+#define IDD_FIND_DIALOG 1004
+#define IDC_FIND_WHAT 1005
+#define IDC_REPLACE_WITH 1006
+#define IDC_FIND_NEXT 1007
+#define IDC_REPLACE 1008
+#define IDC_REPLACE_ALL 1009
+#define IDC_DIRECTION_UP 1010
+#define IDC_DIRECTION_DOWN 1011
 #endif
 // Next default values for new objects
 //
