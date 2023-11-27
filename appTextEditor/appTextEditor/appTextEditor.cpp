@@ -197,7 +197,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_SAVE:
 			SaveFile(hwnd);
 			return 0;
-		case IDD_FIND_DIALOG:
+		case IDM_FIND:
 			//// Need to be static as their addresses are being used later
 			static FINDREPLACE fr;       // common dialog box structure
 			// Owner window is passed to us
@@ -209,10 +209,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			fr.hwndOwner = hwnd;
 			fr.lpstrFindWhat = szFindWhat;
 			fr.wFindWhatLen = 80;
-			//fr.Flags = FR_ENABLETEMPLATE | FR_DIALOGTERM | FR_ENABLEHOOK;
 			fr.Flags = 0;
-			//fr.lpTemplateName = MAKEINTRESOURCE(IDD_FIND_DIALOG); // Set your dialog template resource ID
-			fr.lpTemplateName = 0;
 
 			hdlg = FindText(&fr);
 			return 0;

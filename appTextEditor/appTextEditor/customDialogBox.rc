@@ -11,6 +11,6 @@ BEGIN
     END
     POPUP "&Edit"
     BEGIN
-        MENUITEM "&Find",              IDD_FIND_DIALOG
+        MENUITEM "&Find",              IDM_FIND
     END
 END

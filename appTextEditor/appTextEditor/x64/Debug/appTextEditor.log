@@ -1,0 +1,12 @@
+﻿  appTextEditor.cpp
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\resource.h(20,1): warning C4005: 'IDM_EXIT': macro redefinition
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\resource.h(11,1): message : see previous definition of 'IDM_EXIT'
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(43,16): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(44,23): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(170,12): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(272,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+resource.h(20): warning RC4005: 'IDM_EXIT' : redefinition
+  
+resource.h(20): warning RC4005: 'IDM_EXIT' : redefinition
+  
+  appTextEditor.vcxproj -> C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\x64\Debug\appTextEditor.exe
