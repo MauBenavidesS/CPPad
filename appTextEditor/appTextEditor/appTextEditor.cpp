@@ -2,6 +2,8 @@
 #include <tchar.h>
 #include "resource.h"
 
+HINSTANCE hInst = GetModuleHandle(NULL);
+
 ////AWK something to search...
 const TCHAR testdata[] =
 _T("A \"Hello world\" program is a computer program that outputs \"Hello, world\" on a display")
@@ -18,8 +20,6 @@ _T(" turning on an LED, is often substituted for \"Hello world\" as the introduc
 HWND hEdit;
 TCHAR g_szFileName[MAX_PATH];
 
-HINSTANCE hInst = NULL;
-
 //// AWT init uFindReplaceMsg at global scope
 ////UINT uFindReplaceMsg;  // message identifier for FINDMSGSTRING 
 const UINT uFindReplaceMsg = RegisterWindowMessage(FINDMSGSTRING);//Regestering FINDMSGSTRING
@@ -28,6 +28,7 @@ HWND hdlg = NULL;     // handle to Find dialog box
 int findFrom = 0;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 //// AWK Pretend file search; searches text which is assumed to be
 //// in step with the read-only edit control
@@ -218,7 +219,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SaveFile(hwnd);
 			return 0;
 		case IDD_FIND_DIALOG:
-			FindDialog(hwnd);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
+			//FindDialog(hwnd);
 			return 0;
 
 		case IDM_EXIT:
@@ -267,9 +269,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (lpfr->Flags & FR_FINDNEXT)
 			{
 				////For illustrative purposes, just highlight words in Edit control
-				int find = SearchFile(lpfr->lpstrFindWhat,
-					(BOOL)(lpfr->Flags & FR_DOWN),
-					(BOOL)(lpfr->Flags & FR_MATCHCASE));
+				int find = static_cast<int>(SearchFile(lpfr->lpstrFindWhat,
+					static_cast<BOOL>(lpfr->Flags & FR_DOWN),
+					static_cast<BOOL>(lpfr->Flags & FR_MATCHCASE)));
 				if (-1 == find)
 				{
 					PostMessage(hEdit, EM_SETSEL, (WPARAM)-1, (LPARAM)0);
@@ -288,4 +290,55 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	}
 	return 0;
+}
+
+
+// Definition of the dialog procedure
+INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+	case WM_INITDIALOG:
+		// Initialization code
+		return TRUE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDC_DIRECTION_UP:
+		case IDC_DIRECTION_DOWN:
+			// Handle radio button clicks
+			// Update your logic based on the selected radio button
+			if (IsDlgButtonChecked(hwndDlg, IDC_DIRECTION_UP)) {
+				// Up is selected
+				// Your logic here
+			}
+			else {
+				// Down is selected
+				// Your logic here
+			}
+			return 0;
+
+		case IDC_REPLACE:
+			DestroyWindow(hwndDlg);
+			return 0;
+
+		case IDCANCEL:
+			return 0;
+
+
+			// Add cases for other controls as needed
+
+		default:
+			break;
+		}
+		break;
+
+	case WM_CLOSE:
+		// Handle close message
+		EndDialog(hwndDlg, IDCANCEL);
+		return TRUE;
+
+	default:
+		return FALSE; // Let Windows handle other messages
+	}
+
+	return FALSE;
 }
