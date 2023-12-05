@@ -36,6 +36,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			SaveFile(hWnd);
 			break;
 		}
+		case IDD_FIND_DIALOG:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
+			return 0;
 		break;
 
 	}
