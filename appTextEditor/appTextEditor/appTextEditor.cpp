@@ -17,7 +17,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 	case WM_CREATE: {
 		// Create the edit control
-		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquet, dolor vitae vulputate tristique, velit urna hendrerit justo, nec hendrerit est quam id justo. Nulla facilisi. Maecenas vel nisi a arcu malesuada commodo vel vel libero. Suspendisse potenti. Vestibulum vel tortor id neque tincidunt scelerisque sit amet sit amet justo. Curabitur cursus, sapien non fringilla feugiat, sapien ligula vestibulum libero, et scelerisque purus nisl vel turpis. Integer eu sem at est ullamcorper cursus id vel libero. Proin scelerisque, purus eget efficitur tristique, odio eros laoreet ligula, nec gravida mauris dolor vel risus. Fusce vel tellus auctor, eleifend est eget, dictum lectus. Duis id mi vitae sem laoreet venenatis."),
+		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
 			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
 			0, 0, 500, 300, hWnd, (HMENU)1, GetModuleHandle(NULL), NULL);
 
