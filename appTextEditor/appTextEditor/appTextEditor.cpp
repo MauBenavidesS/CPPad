@@ -4,7 +4,7 @@
 #include "globals.h"
 
 HINSTANCE hInst = GetModuleHandle(NULL);
-HWND hEdit = NULL; 
+HWND hEdit = NULL;
 
 void OpenFile(HWND hWnd);
 void SaveFile(HWND hWnd);
@@ -14,11 +14,6 @@ INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
-		// Define command IDs
-#define ID_FILE_OPEN  1001
-#define ID_FILE_SAVE  1002
-#define ID_EDIT_FIND  1003
-#define ID_EDIT_REPLACE  1004
 
 	case WM_CREATE: {
 		// Create the edit control
