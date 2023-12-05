@@ -1,6 +1,6 @@
-﻿  appTextEditor.cpp
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(44,16): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(45,23): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(191,12): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
-C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(281,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  appTextEditor.vcxproj -> C:\Users\juanp\Desktop\Mauricio\10. Github\Text-Editor\appTextEditor\x64\Debug\appTextEditor.exe
+﻿  FindReplace.cpp
+  OpenSave.cpp
+  appTextEditor.cpp
+C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(59,12): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
+  Generating Code...
+  appTextEditor.vcxproj -> C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\x64\Debug\appTextEditor.exe

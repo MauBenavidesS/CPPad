@@ -1,0 +1,16 @@
+#include "winresrc.h"
+#include "resource.h"
+
+IDC_MAIN MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open",                IDM_OPEN
+        MENUITEM "&Save",                IDM_SAVE
+        MENUITEM "E&xit",                IDM_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Find",               IDD_FIND_DIALOG
+    END
+END
