@@ -13,11 +13,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) 
-	{
+	switch (message) {
 
-	case WM_CREATE: 
-	{
+	case WM_CREATE: {
 		// Create the edit control
 		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
 			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
@@ -29,38 +27,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 		break;
 	}
-	case WM_COMMAND: 
-	{
-		switch (LOWORD(wParam)) 
-		{
+	case WM_COMMAND: {
+		switch (LOWORD(wParam)) {
 		case IDM_OPEN:
 			OpenFile(hWnd);
 			break;
 		case IDM_SAVE:
 			SaveFile(hWnd);
 			break;
+		}
 		case IDD_FIND_DIALOG:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
-			break;
-		}
+			return 0;
 		break;
 
 	}
-	case WM_SIZE: 
-	{
+	case WM_SIZE: {
 		MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
 		break;
 	}
-	case WM_DESTROY: 
-	{
+	case WM_DESTROY: {
 		PostQuitMessage(0);
 		break;
 	}
-	default: 
-	{
+	default: {
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	
 	}
 	return 0;
 }
