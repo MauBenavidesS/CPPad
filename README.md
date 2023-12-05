@@ -40,7 +40,3 @@ If you'd like to contribute to C++Pad, please follow these steps:
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Feel free to customize this readme according to your project's specific details and requirements.
