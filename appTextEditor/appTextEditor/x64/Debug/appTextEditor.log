@@ -1,6 +1,0 @@
-﻿  FindReplace.cpp
-  OpenSave.cpp
-  appTextEditor.cpp
-C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\appTextEditor\appTextEditor.cpp(59,12): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
-  Generating Code...
-  appTextEditor.vcxproj -> C:\Users\USER\OneDrive\Escritorio\GitHub\Text-Editor\appTextEditor\x64\Debug\appTextEditor.exe
