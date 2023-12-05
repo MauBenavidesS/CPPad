@@ -12,109 +12,97 @@ void SaveFile(HWND hWnd);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	PSTR szCmdLine, int iCmdShow)
-{
-	static TCHAR szAppName[] = TEXT("TextFind Demo"); //// AWK
-	HWND         hwnd;
-	MSG          msg;
-	WNDCLASS     wndclass = { 0 }; //// AWK zero struct
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+		// Define command IDs
+#define ID_FILE_OPEN  1001
+#define ID_FILE_SAVE  1002
+#define ID_EDIT_FIND  1003
+#define ID_EDIT_REPLACE  1004
 
-	hInst = hInstance; //// AWK remember instance 
+	case WM_CREATE: {
+		// Create the edit control
+		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquet, dolor vitae vulputate tristique, velit urna hendrerit justo, nec hendrerit est quam id justo. Nulla facilisi. Maecenas vel nisi a arcu malesuada commodo vel vel libero. Suspendisse potenti. Vestibulum vel tortor id neque tincidunt scelerisque sit amet sit amet justo. Curabitur cursus, sapien non fringilla feugiat, sapien ligula vestibulum libero, et scelerisque purus nisl vel turpis. Integer eu sem at est ullamcorper cursus id vel libero. Proin scelerisque, purus eget efficitur tristique, odio eros laoreet ligula, nec gravida mauris dolor vel risus. Fusce vel tellus auctor, eleifend est eget, dictum lectus. Duis id mi vitae sem laoreet venenatis."),
+			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+			0, 0, 500, 300, hWnd, (HMENU)1, GetModuleHandle(NULL), NULL);
 
-	wndclass.style = CS_HREDRAW | CS_VREDRAW;
-	wndclass.lpfnWndProc = WndProc;
-	wndclass.cbClsExtra = 0;
-	wndclass.cbWndExtra = 0;
-	wndclass.hInstance = hInstance;
-	wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wndclass.hbrBackground = NULL; //// AWK was (HBRUSH) GetStockObject (WHITE_BRUSH) ;
-	wndclass.lpszMenuName = MAKEINTRESOURCE(IDC_MAIN); //// AWK added menu (was NULL)
-	wndclass.lpszClassName = szAppName;
+		// Load the custom menu from the resource file
+		HMENU hMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDC_MAIN));
+		SetMenu(hWnd, hMenu);
 
-	if (!RegisterClass(&wndclass))
-	{
-		MessageBox(NULL, TEXT("Program requires Windows NT!"),
-			szAppName, MB_ICONERROR);
-		return 0;
+		break;
 	}
-
-	hwnd = CreateWindow(szAppName, TEXT("Find Text in Edit Control Demo"),
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		NULL, NULL, hInstance, NULL);
-
-	ShowWindow(hwnd, iCmdShow);
-	UpdateWindow(hwnd);
-	//// init now done at global scope
-
-
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg); //Getting access violation after creating Find dilog box & green arrow showing here.
-	}
-	return msg.wParam;
-}
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	static HBRUSH hbrWhite = (HBRUSH)GetStockObject(WHITE_BRUSH);
-
-	switch (message)
-	{
-	case WM_CREATE:
-		hEdit = CreateWindow(_T("EDIT"), L"",
-			WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NOHIDESEL,
-			0, 0, 0, 0, hwnd, (HMENU)100, hInst, NULL);
-		return 0;
-
-	case WM_SIZE:
-		if (NULL != hEdit)
-			MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), FALSE);
-		return 0;
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
+	case WM_COMMAND: {
+		switch (LOWORD(wParam)) {
 		case IDM_OPEN:
-			OpenFile(hwnd);
-			return 0;
+			OpenFile(hWnd);
+			break;
 		case IDM_SAVE:
-			SaveFile(hwnd);
-			return 0;
-		case IDD_FIND_DIALOG:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
-			//FindDialog(hwnd);
-			return 0;
-
-		case IDM_EXIT:
-			DestroyWindow(hwnd);
-			return 0;
+			SaveFile(hWnd);
+			break;
 		}
 		break;
 
-		//// Make read-only Edit control white
-	case WM_CTLCOLORSTATIC:
-		return (LRESULT)hbrWhite;
-
-	case WM_PAINT://paint operation
-		return 0;
-
-		//// Edit control handles its own background, so do not
-		//// repaint background (avoids flicker.)
-	case WM_ERASEBKGND:
-		return TRUE;
-
-	case WM_DESTROY:
+	}
+	case WM_SIZE: {
+		MoveWindow(hEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
+		break;
+	}
+	case WM_DESTROY: {
 		PostQuitMessage(0);
-		return 0;
-
-	default:
-		return DefWindowProc(hwnd, message, wParam, lParam);
-
+		break;
+	}
+	default: {
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
 	}
 	return 0;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	// Register the window class
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = TEXT("SimpleEditorClass");
+	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+
+	if (!RegisterClassEx(&wcex)) {
+		MessageBox(NULL, TEXT("Call to RegisterClassEx failed!"), TEXT("Win32 Guided Tour"), 0);
+		return 1;
+	}
+
+	// Create the window
+	HWND hWnd = CreateWindow(TEXT("SimpleEditorClass"), TEXT("Simple Text Editor"),
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		640, 480, NULL, NULL, hInstance, NULL);
+
+	if (!hWnd) {
+		MessageBox(NULL, TEXT("Call to CreateWindow failed!"), TEXT("Win32 Guided Tour"), 0);
+		return 1;
+	}
+
+	// Show the window
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+
+	// Message loop
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	return (int)msg.wParam;
 }
