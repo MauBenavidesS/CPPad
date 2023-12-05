@@ -3,14 +3,13 @@
 #include <tchar.h>
 #include "globals.h"
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+HINSTANCE hInst = GetModuleHandle(NULL);
+HWND hEdit = NULL; 
 
 void OpenFile(HWND hWnd);
 void SaveFile(HWND hWnd);
 
-HINSTANCE hInst = GetModuleHandle(NULL);
-HWND hEdit = NULL;
+INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	PSTR szCmdLine, int iCmdShow)
