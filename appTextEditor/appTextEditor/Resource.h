@@ -30,8 +30,10 @@
 #define IDC_REPLACE_ALL         1009
 #define IDC_DIRECTION_UP        1010
 #define IDC_DIRECTION_DOWN      1011
-#define IDM_ZOOM_IN             1020
-#define IDM_ZOOM_OUT            1021
+#define IDM_ZOOM				1023
+#define IDD_ZOOM		        1024
+#define ID_ZOOM_IN             1020
+#define ID_ZOOM_OUT            1021
 #endif
 
 // Next default values for new objects

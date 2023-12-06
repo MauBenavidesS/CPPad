@@ -144,6 +144,7 @@
     <ResourceCompile Include="appTextEditor.rc" />
     <ResourceCompile Include="MainMenuDialogBox.rc" />
     <ResourceCompile Include="FindDialogBox.rc" />
+    <ResourceCompile Include="zoomBox.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="appTextEditor.ico" />

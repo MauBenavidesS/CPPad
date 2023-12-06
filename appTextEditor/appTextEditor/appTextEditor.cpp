@@ -5,13 +5,9 @@
 #include "zoomFunctionality.h"
 
 
-
-
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
-
-int g_nZoomFactor = 100;// Forward declaration
-
+int g_nZoomFactor = 100;
 
 void OpenFile(HWND hWnd);
 void SaveFile(HWND hWnd);
@@ -55,13 +51,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		case IDD_FIND_DIALOG:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
 			break;
-		case IDM_ZOOM_IN:
-			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
+		case IDM_ZOOM:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ZOOM), NULL, AdjustFontSizeProc);
 			break;
-		case IDM_ZOOM_OUT:
-			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
-			break;
-
 		}
 	case WM_MOUSEWHEEL:
 	{
@@ -78,7 +70,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				// Mouse wheel scrolled down
 				AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
 			}
-		}	
+		}
 
 		break;
 	}
