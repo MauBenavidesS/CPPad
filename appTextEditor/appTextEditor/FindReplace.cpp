@@ -4,6 +4,7 @@
 
 #include <atlbase.h>
 #include <atlapp.h> // must be included
+#include <string>
 
 TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
@@ -68,6 +69,50 @@ void ReplaceTextWith(HWND hwndDlg)
 	delete[] buffer;
 }
 
+void ReplaceAll(HWND hwndDlg)
+{
+	// Get the search string from the edit control in the Find Dialog Box
+	GetDlgItemText(hwndDlg, IDC_FIND_WHAT, szFindWhat, sizeof(szFindWhat) / sizeof(szFindWhat[0]));
+	GetDlgItemText(hwndDlg, IDC_REPLACE_WITH, szReplaceWith, sizeof(szReplaceWith) / sizeof(szReplaceWith[0]));
+
+	// Get the text from the main text editor control
+	int textLength = GetWindowTextLength(hEdit);
+	TCHAR* buffer = new TCHAR[textLength + 1];
+	GetWindowText(hEdit, buffer, textLength + 1);
+
+	// Perform the search operation
+	int replaceOffset = 0; // Track the offset caused by replacements
+	TCHAR* position = buffer;
+
+	int counter = 0;
+	while ((position = _tcsstr(position, szFindWhat)) != NULL)
+	{
+		counter += 1;
+		// Found the search string
+		int startPosition = position - buffer + replaceOffset;
+		int endPosition = startPosition + _tcslen(szFindWhat);
+
+		// Select the found text in the main text editor control
+		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+
+		// Output text to the main text editor control
+		SendMessage(hEdit, EM_REPLACESEL, TRUE, reinterpret_cast<LPARAM>(szReplaceWith));
+
+		// Calculate the new offset caused by the replacement
+		int replacementLength = _tcslen(szReplaceWith);
+		int originalLength = _tcslen(szFindWhat);
+		replaceOffset += replacementLength - originalLength;
+
+		// Move the position forward to search for the next occurrence
+		position += originalLength; // Increment the pointer to the end of the found text
+	}
+
+	std::wstring str = std::to_wstring(counter) + TEXT(" Instances of the text were replaced.");
+	MessageBox(hwndDlg, str.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
+
+	delete[] buffer;
+}
+
 // Definition of the dialog procedure
 INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
@@ -126,6 +171,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 
 
 		case IDC_REPLACE_ALL:
+			ReplaceAll(hwndDlg);
 			return 0;
 
 		case IDCANCEL:
