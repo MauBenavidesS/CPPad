@@ -11,17 +11,24 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_DIRECTION_UP:
-		case IDC_DIRECTION_DOWN:
 			// Handle radio button clicks
-			// Update your logic based on the selected radio button
-			if (IsDlgButtonChecked(hwndDlg, IDC_DIRECTION_UP)) {
-				// Up is selected
-				// Your logic here
-				DestroyWindow(hwndDlg);
+			if (IsDlgButtonChecked(hwndDlg, IDC_DIRECTION_DOWN)) {
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_CHECKED, 0);
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_UNCHECKED, 0);
 			}
 			else {
-				// Down is selected
-				// Your logic here
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_CHECKED, 0);
+			}
+			return 0;
+
+		case IDC_DIRECTION_DOWN:
+			// Handle radio button clicks
+			if (IsDlgButtonChecked(hwndDlg, IDC_DIRECTION_UP)) {
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_UNCHECKED, 0);
+			}
+			else {
+				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
 			}
 			return 0;
 
