@@ -37,6 +37,55 @@ bool FindFirst(HWND hwndDlg)
 
 	delete[] buffer;
 }
+
+bool FindNext(HWND hwndDlg)
+{
+	// Get the search string from the edit control in the Find Dialog Box
+	GetDlgItemText(hwndDlg, IDC_FIND_WHAT, szFindWhat, sizeof(szFindWhat) / sizeof(szFindWhat[0]));
+
+	// Get the text from the main text editor control
+	int textLength = GetWindowTextLength(hEdit);
+	TCHAR* buffer = new TCHAR[textLength + 1];
+	GetWindowText(hEdit, buffer, textLength + 1);
+
+	// Perform the search operation
+	static TCHAR* position = nullptr;  // Use static variable to maintain position between calls
+	int counter = 0;
+
+	if (position == nullptr) {
+		position = buffer;  // If position is null, start from the beginning
+	}
+
+	if ((position = _tcsstr(position, szFindWhat)) != NULL)
+	{
+		// Found the search string
+		int startPosition = position - buffer;
+		int endPosition = startPosition + _tcslen(szFindWhat);
+
+		// Select the found text in the main text editor control
+		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+
+		// Move the position forward to search for the next occurrence
+		position += _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
+
+		counter++;
+	}
+
+	delete[] buffer;
+
+	if (counter > 0)
+	{
+		// At least one occurrence was found
+		return true;
+	}
+	else
+	{
+		// No occurrences were found
+		position = nullptr;  // Reset position to null for the next search
+		return false;
+	}
+}
+
 void ReplaceTextWith(HWND hwndDlg)
 { // Replaces the text in the first EDITTEXT input bar with the text in the second EDITTEXT input bar. 
 	// Get the search string from the edit control in the Find Dialog Box
@@ -146,7 +195,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 
 		case IDC_FIND_NEXT:
 		{
-			bool foundText = FindFirst(hwndDlg);
+			bool foundText = FindNext(hwndDlg);
 			if (foundText == FALSE)
 			{
 				MessageBox(hwndDlg, TEXT("Text not found."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
