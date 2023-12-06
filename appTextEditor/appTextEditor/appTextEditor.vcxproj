@@ -132,16 +132,19 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="zoomFunctionality.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appTextEditor.cpp" />
     <ClCompile Include="FindReplace.cpp" />
     <ClCompile Include="OpenSave.cpp" />
+    <ClCompile Include="zoomFunctionality.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="appTextEditor.rc" />
     <ResourceCompile Include="MainMenuDialogBox.rc" />
     <ResourceCompile Include="FindDialogBox.rc" />
+    <ResourceCompile Include="zoomBox.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="appTextEditor.ico" />
