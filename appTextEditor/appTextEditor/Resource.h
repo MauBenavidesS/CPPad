@@ -13,6 +13,8 @@
 #define IDI_SMALL               108
 #define IDC_APPTEXTEDITOR       109
 #define IDC_MYICON              2
+#define ZOOMIN_FACTOR           5
+#define ZOOMOUT_FACTOR          -5
 
 #ifndef IDC_STATIC
 #define IDC_STATIC              -1

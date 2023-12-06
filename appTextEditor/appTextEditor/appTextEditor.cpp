@@ -56,10 +56,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
 			break;
 		case IDM_ZOOM_IN:
-			AdjustFontSize(hEdit, g_nZoomFactor, 5);
+			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
 			break;
 		case IDM_ZOOM_OUT:
-			AdjustFontSize(hEdit, g_nZoomFactor, -5);
+			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
 			break;
 
 		}
@@ -72,11 +72,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			// Ctrl key is pressed, adjust font size based on mouse wheel direction
 			if (zDelta > 0) {
 				// Mouse wheel scrolled up
-				AdjustFontSize(hEdit, g_nZoomFactor, 5);
+				AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
 			}
 			else {
 				// Mouse wheel scrolled down
-				AdjustFontSize(hEdit, g_nZoomFactor, -5);
+				AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
 			}
 		}	
 

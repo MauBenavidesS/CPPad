@@ -1,9 +1,9 @@
-# C++Pad
+# CPPad
 
-C++Pad is a simple text editor implemented in C++ using the Win32 API. It provides basic functionality for opening, saving, and editing text files in a user-friendly interface.
+CPPad is a simple text editor implemented in C++ using the Win32 API. It provides basic functionality for opening, saving, and editing text files in a user-friendly interface.
 
 ## Features
-- **File Operations:** C++Pad allows users to open and save text files easily.
+- **File Operations:** CPPad allows users to open and save text files easily.
 - **Find and Replace:** The editor includes a basic find and replace functionality to search and replace text within the document.
 - **User Interface:** The user interface is straightforward, featuring a menu bar with options for file operations and a resizable text editing area.
 
@@ -13,24 +13,24 @@ C++Pad is a simple text editor implemented in C++ using the Win32 API. It provid
 3. **Find and Replace:** Access the find and replace functionality through the "Find" option in the menu.
 
 ## Building and Running
-To build and run the C++Pad project, follow these steps:
+To build and run the CPPad project, follow these steps:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/MauBenavidesS/C++Pad.git   
+   git clone https://github.com/MauBenavidesS/CPPad.git   
    ```
 
 2. **Open Solution in Visual Studio:**
-   Navigate to the `C++Pad/appTextEditor` folder and open the `appTextEditor.sln` solution file using Visual Studio.
+   Navigate to the `CPPad/appTextEditor` folder and open the `appTextEditor.sln` solution file using Visual Studio.
 
 3. **Build the Project:**
    Build the project using the build options provided by Visual Studio.
 
 4. **Run the Application:**
-   Execute the compiled binary to launch C++Pad.
+   Execute the compiled binary to launch CPPad.
 
 ## Contributing
-If you'd like to contribute to C++Pad, please follow these steps:
+If you'd like to contribute to CPPad, please follow these steps:
 
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix.
