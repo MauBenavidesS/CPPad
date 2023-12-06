@@ -17,6 +17,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			if (IsDlgButtonChecked(hwndDlg, IDC_DIRECTION_UP)) {
 				// Up is selected
 				// Your logic here
+				DestroyWindow(hwndDlg);
 			}
 			else {
 				// Down is selected
@@ -24,15 +25,18 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			}
 			return 0;
 
-		case IDC_REPLACE:
+		case IDC_FIND_NEXT:
 			DestroyWindow(hwndDlg);
+			return 0;
+
+		case IDC_REPLACE:
+			return 0;
+
+		case IDC_REPLACE_ALL:
 			return 0;
 
 		case IDCANCEL:
 			return 0;
-
-
-			// Add cases for other controls as needed
 
 		default:
 			break;
