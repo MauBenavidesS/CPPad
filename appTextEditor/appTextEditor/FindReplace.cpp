@@ -9,34 +9,36 @@
 TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
 
-bool FindFirst(HWND hwndDlg)
-{ // Returns TRUE if text to search for was found, else it returns FALSE.
-	// Get the search string from the edit control in the Find Dialog Box
-	GetDlgItemText(hwndDlg, IDC_FIND_WHAT, szFindWhat, sizeof(szFindWhat) / sizeof(szFindWhat[0]));
+TCHAR* position = nullptr;  // Use static variable to maintain position between calls
 
-	// Get the text from the main text editor control
-	int textLength = GetWindowTextLength(hEdit);
-	TCHAR* buffer = new TCHAR[textLength + 1];
-	GetWindowText(hEdit, buffer, textLength + 1);
-
-	// Perform the search operation
-	TCHAR* position = _tcsstr(buffer, szFindWhat);
-	if (position != NULL) {
-		// Found the search string
-		int startPosition = position - buffer;
-		int endPosition = startPosition + _tcslen(szFindWhat);
-
-		// Select the found text in the main text editor control
-		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
-		return TRUE;
-	}
-	else 
-	{
-		return FALSE;
-	}
-
-	delete[] buffer;
-}
+//bool FindFirst(HWND hwndDlg)
+//{ // Returns TRUE if text to search for was found, else it returns FALSE.
+//	// Get the search string from the edit control in the Find Dialog Box
+//	GetDlgItemText(hwndDlg, IDC_FIND_WHAT, szFindWhat, sizeof(szFindWhat) / sizeof(szFindWhat[0]));
+//
+//	// Get the text from the main text editor control
+//	int textLength = GetWindowTextLength(hEdit);
+//	TCHAR* buffer = new TCHAR[textLength + 1];
+//	GetWindowText(hEdit, buffer, textLength + 1);
+//
+//	// Perform the search operation
+//	TCHAR* position = _tcsstr(buffer, szFindWhat);
+//	if (position != NULL) {
+//		// Found the search string
+//		int startPosition = position - buffer;
+//		int endPosition = startPosition + _tcslen(szFindWhat);
+//
+//		// Select the found text in the main text editor control
+//		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+//		return TRUE;
+//	}
+//	else 
+//	{
+//		return FALSE;
+//	}
+//
+//	delete[] buffer;
+//}
 
 bool FindNext(HWND hwndDlg)
 {
@@ -49,7 +51,6 @@ bool FindNext(HWND hwndDlg)
 	GetWindowText(hEdit, buffer, textLength + 1);
 
 	// Perform the search operation
-	static TCHAR* position = nullptr;  // Use static variable to maintain position between calls
 	int counter = 0;
 
 	if (position == nullptr) {
@@ -82,6 +83,7 @@ bool FindNext(HWND hwndDlg)
 	{
 		// No occurrences were found
 		position = nullptr;  // Reset position to null for the next search
+		MessageBox(hwndDlg, TEXT("Text not found."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
 		return false;
 	}
 }
@@ -97,9 +99,14 @@ void ReplaceTextWith(HWND hwndDlg)
 	TCHAR* buffer = new TCHAR[textLength + 1];
 	GetWindowText(hEdit, buffer, textLength + 1);
 
-	// Perform the search operation
-	TCHAR* position = _tcsstr(buffer, szFindWhat);
-	if (position != NULL) {
+	if (position == nullptr) {
+		position = buffer;  // If position is null, start from the beginning
+	}
+
+	// Move the position forward to search for the next occurrence
+	position -= _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
+	if ((position = _tcsstr(position, szFindWhat)) != NULL)
+	{
 		// Found the search string
 		int startPosition = position - buffer;
 		int endPosition = startPosition + _tcslen(szFindWhat);
@@ -107,12 +114,10 @@ void ReplaceTextWith(HWND hwndDlg)
 		// Select the found text in the main text editor control
 		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
 
-		// Output text to the main text editor control
 		SendMessage(hEdit, EM_REPLACESEL, TRUE, reinterpret_cast<LPARAM>(szReplaceWith));
-	}
-	else {
-		// Not found
-		MessageBox(hwndDlg, TEXT("Text not found!"), TEXT("Find Next"), MB_OK | MB_ICONINFORMATION);
+
+		SendMessage(hEdit, EM_SETSEL, startPosition, startPosition + _tcslen(szReplaceWith));
+
 	}
 
 	delete[] buffer;
@@ -195,26 +200,13 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 
 		case IDC_FIND_NEXT:
 		{
-			bool foundText = FindNext(hwndDlg);
-			if (foundText == FALSE)
-			{
-				MessageBox(hwndDlg, TEXT("Text not found."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
-			}
+			FindNext(hwndDlg);
 			return 0;
 		}
 
 		case IDC_REPLACE:
 		{
-			bool somethingToReplace = FindFirst(hwndDlg);
-			if (somethingToReplace == TRUE) 
-			{
-				ReplaceTextWith(hwndDlg);
-				FindFirst(hwndDlg);
-			}
-			else 
-			{
-				MessageBox(hwndDlg, TEXT("No text to replace."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
-			}
+			ReplaceTextWith(hwndDlg);
 			return 0;
 		}
 
@@ -224,6 +216,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			return 0;
 
 		case IDCANCEL:
+			position = nullptr;
 			DestroyWindow(hwndDlg);
 			return 0;
 
