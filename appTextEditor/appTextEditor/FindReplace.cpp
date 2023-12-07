@@ -5,11 +5,18 @@
 #include <atlbase.h>
 #include <atlapp.h> // must be included
 #include <string>
+#include <tchar.h>
+#include <vector>
 
 TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
 
 TCHAR* position = nullptr;  // Use static variable to maintain position between calls
+bool DOWN = TRUE;
+bool UP = FALSE;
+bool DIRECTION;
+
+std::vector<int>* pStartPositionsVector = new std::vector<int>();
 
 //bool FindFirst(HWND hwndDlg)
 //{ // Returns TRUE if text to search for was found, else it returns FALSE.
@@ -50,26 +57,58 @@ bool FindNext(HWND hwndDlg)
 	TCHAR* buffer = new TCHAR[textLength + 1];
 	GetWindowText(hEdit, buffer, textLength + 1);
 
-	// Perform the search operation
 	int counter = 0;
+	
 
 	if (position == nullptr) {
-		position = buffer;  // If position is null, start from the beginning
+			position = buffer;  // If position is null, start from the beginning
 	}
-
-	if ((position = _tcsstr(position, szFindWhat)) != NULL)
+	if (DIRECTION == DOWN)
 	{
-		// Found the search string
-		int startPosition = position - buffer;
-		int endPosition = startPosition + _tcslen(szFindWhat);
+		if ((position = _tcsstr(position, szFindWhat)) != NULL)
+		{
+			// Found the search string
+			int startPosition = position - buffer;
+			int endPosition = startPosition + _tcslen(szFindWhat);
 
-		// Select the found text in the main text editor control
-		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+			// Select the found text in the main text editor control
+			SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
 
-		// Move the position forward to search for the next occurrence
-		position += _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
+			// Move the position forward to search for the next occurrence
+			position += _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
 
-		counter++;
+			counter++;
+		}
+	}
+	else if (DIRECTION == UP)
+	{
+		int instanceCount = 0;
+		while ((position = _tcsstr(position, szFindWhat)) != NULL)
+		{
+			instanceCount += 1;
+			// Found the search string
+			int startPosition = position - buffer;
+			int endPosition = startPosition + _tcslen(szFindWhat);
+
+			// Select the found text in the main text editor control
+			SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+
+			// Stores starting positions of each found word
+			pStartPositionsVector->push_back(startPosition);
+
+			// Move the position forward to search for the next occurrence
+			position += _tcslen(szFindWhat); // Increment the pointer to the end of the found text
+		}
+
+		std::wstring str = std::to_wstring(instanceCount) + TEXT(" Instances of the word were found.");
+		MessageBox(hwndDlg, str.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
+
+		for (int pos : *pStartPositionsVector) {
+			std::wstring posStr = std::to_wstring(pos) + L"\n";
+			OutputDebugString(posStr.c_str());
+		}
+
+
 	}
 
 	delete[] buffer;
@@ -84,6 +123,7 @@ bool FindNext(HWND hwndDlg)
 		// No occurrences were found
 		position = nullptr;  // Reset position to null for the next search
 		MessageBox(hwndDlg, TEXT("Text not found."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
+		counter = 0;
 		return false;
 	}
 }
@@ -172,6 +212,9 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 	switch (message) {
 	case WM_INITDIALOG:
 		// Initialization code
+		SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
+		SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_UNCHECKED, 0);
+		DIRECTION = DOWN;
 		return TRUE;
 
 	case WM_COMMAND:
@@ -185,6 +228,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			else {
 				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_CHECKED, 0);
 			}
+			DIRECTION = UP;
 			return 0;
 
 		case IDC_DIRECTION_DOWN:
@@ -196,6 +240,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			else {
 				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
 			}
+			DIRECTION = DOWN;
 			return 0;
 
 		case IDC_FIND_NEXT:
@@ -227,6 +272,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 
 	case WM_CLOSE:
 		// Handle close message
+
 		EndDialog(hwndDlg, IDCANCEL);
 		return TRUE;
 
