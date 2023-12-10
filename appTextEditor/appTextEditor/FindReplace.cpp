@@ -58,8 +58,6 @@ bool FindNext(HWND hwndDlg)
 			// Found the search string
 			startPosition = position - buffer;
 			endPosition = startPosition + _tcslen(szFindWhat);
-			OutputDebugString((L" ----- " + std::to_wstring(position - buffer) + L" - " + std::to_wstring(_tcslen(szFindWhat))).c_str());
-			OutputDebugString((L" ----- " + std::to_wstring(position - buffer) + L" - " + std::to_wstring(position - buffer + _tcslen(szFindWhat)) + L"\n").c_str());
 
 			// Select the found text in the main text editor control
 			SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
@@ -71,8 +69,6 @@ bool FindNext(HWND hwndDlg)
 		{
 			std::wstring message = L"Text could not be found ahead. \n Text instances found: " + std::to_wstring(wordCount);
 			MessageBox(hwndDlg, message.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
-			// Select the found text in the main text editor control
-			OutputDebugString((std::to_wstring(position - buffer) + L" - " + std::to_wstring(position - buffer + _tcslen(szFindWhat)) + L"\n").c_str());
 		}
 	}
 	else if (DIRECTION == UP)
@@ -84,14 +80,9 @@ bool FindNext(HWND hwndDlg)
 		if (!pStartPositionsVector.empty())
 		{
 			std::wstring posStr = std::to_wstring((position) - buffer) + L"\n";
-			OutputDebugString(posStr.c_str());
 
 			for (size_t i = pStartPositionsVector.size()-1; i > 0; --i)
 			{
-				// i need to compare position to this pointer: pStartPositionsVector[i - 1] and if its the same then go one back.
-				std::wstring posStr = std::to_wstring((pStartPositionsVector[i]) - buffer) + L"\n";
-				OutputDebugString(posStr.c_str());
-
 				if ((position - buffer) == 0)
 				{
 					position = pStartPositionsVector[pStartPositionsVector.size()-1];
@@ -108,9 +99,6 @@ bool FindNext(HWND hwndDlg)
 				int currentWordsPosition = (pStartPositionsVector[i - 1] - buffer);
 				if ((currentWordsPosition < (position - buffer) - 1))
 				{
-					std::wstring posStr = std::to_wstring((pStartPositionsVector[i - 1]) - buffer) + L"\n";
-					OutputDebugString(posStr.c_str());
-
 					position = pStartPositionsVector[i - 1];
 					startPosition = currentWordsPosition;
 
