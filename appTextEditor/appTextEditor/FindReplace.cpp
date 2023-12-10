@@ -7,6 +7,7 @@
 #include <string>
 #include <tchar.h>
 #include <vector>
+#include <algorithm>
 
 TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
@@ -15,37 +16,6 @@ TCHAR* position = nullptr;  // Use static variable to maintain position between 
 bool DOWN = TRUE;
 bool UP = FALSE;
 bool DIRECTION;
-
-std::vector<int>* pStartPositionsVector = new std::vector<int>();
-
-//bool FindFirst(HWND hwndDlg)
-//{ // Returns TRUE if text to search for was found, else it returns FALSE.
-//	// Get the search string from the edit control in the Find Dialog Box
-//	GetDlgItemText(hwndDlg, IDC_FIND_WHAT, szFindWhat, sizeof(szFindWhat) / sizeof(szFindWhat[0]));
-//
-//	// Get the text from the main text editor control
-//	int textLength = GetWindowTextLength(hEdit);
-//	TCHAR* buffer = new TCHAR[textLength + 1];
-//	GetWindowText(hEdit, buffer, textLength + 1);
-//
-//	// Perform the search operation
-//	TCHAR* position = _tcsstr(buffer, szFindWhat);
-//	if (position != NULL) {
-//		// Found the search string
-//		int startPosition = position - buffer;
-//		int endPosition = startPosition + _tcslen(szFindWhat);
-//
-//		// Select the found text in the main text editor control
-//		SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
-//		return TRUE;
-//	}
-//	else 
-//	{
-//		return FALSE;
-//	}
-//
-//	delete[] buffer;
-//}
 
 bool FindNext(HWND hwndDlg)
 {
@@ -57,75 +27,115 @@ bool FindNext(HWND hwndDlg)
 	TCHAR* buffer = new TCHAR[textLength + 1];
 	GetWindowText(hEdit, buffer, textLength + 1);
 
-	int counter = 0;
-	
+	int wordCount = 0;
+	std::vector<TCHAR*> pStartPositionsVector;
+
+	int startPosition = textLength + 1;
+	int endPosition = textLength + 1;
 
 	if (position == nullptr) {
-			position = buffer;  // If position is null, start from the beginning
+		position = buffer;  // If position is null, start from the beginning
 	}
+
+	TCHAR* foundWordsPosition = buffer;
+	while ((foundWordsPosition = _tcsstr(foundWordsPosition, szFindWhat)) != NULL)
+	{
+		int localStartPosition = foundWordsPosition - buffer;
+		int localEndPosition = localStartPosition + _tcslen(szFindWhat);
+
+		// Stores starting positions of each found word
+		pStartPositionsVector.push_back(foundWordsPosition);
+
+		// Move the position forward to search for the next occurrence
+		foundWordsPosition += _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
+	}
+	wordCount = pStartPositionsVector.size();
+
 	if (DIRECTION == DOWN)
 	{
 		if ((position = _tcsstr(position, szFindWhat)) != NULL)
 		{
 			// Found the search string
-			int startPosition = position - buffer;
-			int endPosition = startPosition + _tcslen(szFindWhat);
+			startPosition = position - buffer;
+			endPosition = startPosition + _tcslen(szFindWhat);
+			OutputDebugString((L" ----- " + std::to_wstring(position - buffer) + L" - " + std::to_wstring(_tcslen(szFindWhat))).c_str());
+			OutputDebugString((L" ----- " + std::to_wstring(position - buffer) + L" - " + std::to_wstring(position - buffer + _tcslen(szFindWhat)) + L"\n").c_str());
 
 			// Select the found text in the main text editor control
 			SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
 
 			// Move the position forward to search for the next occurrence
 			position += _tcslen(szFindWhat);  // Increment the pointer to the end of the found text
-
-			counter++;
+		}
+		else
+		{
+			std::wstring message = L"Text could not be found ahead. \n Text instances found: " + std::to_wstring(wordCount);
+			MessageBox(hwndDlg, message.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
+			// Select the found text in the main text editor control
+			OutputDebugString((std::to_wstring(position - buffer) + L" - " + std::to_wstring(position - buffer + _tcslen(szFindWhat)) + L"\n").c_str());
 		}
 	}
 	else if (DIRECTION == UP)
 	{
-		int instanceCount = 0;
-		while ((position = _tcsstr(position, szFindWhat)) != NULL)
+
+		/*std::wstring str = std::to_wstring(instanceCount) + TEXT(" Instances of the word were found.");
+		MessageBox(hwndDlg, str.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);*/
+		
+		if (!pStartPositionsVector.empty())
 		{
-			instanceCount += 1;
-			// Found the search string
-			int startPosition = position - buffer;
-			int endPosition = startPosition + _tcslen(szFindWhat);
-
-			// Select the found text in the main text editor control
-			SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
-
-			// Stores starting positions of each found word
-			pStartPositionsVector->push_back(startPosition);
-
-			// Move the position forward to search for the next occurrence
-			position += _tcslen(szFindWhat); // Increment the pointer to the end of the found text
-		}
-
-		std::wstring str = std::to_wstring(instanceCount) + TEXT(" Instances of the word were found.");
-		MessageBox(hwndDlg, str.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
-
-		for (int pos : *pStartPositionsVector) {
-			std::wstring posStr = std::to_wstring(pos) + L"\n";
+			std::wstring posStr = std::to_wstring((position) - buffer) + L"\n";
 			OutputDebugString(posStr.c_str());
-		}
 
+			for (size_t i = pStartPositionsVector.size()-1; i > 0; --i)
+			{
+				// i need to compare position to this pointer: pStartPositionsVector[i - 1] and if its the same then go one back.
+				std::wstring posStr = std::to_wstring((pStartPositionsVector[i]) - buffer) + L"\n";
+				OutputDebugString(posStr.c_str());
+
+				if ((position - buffer) == 0)
+				{
+					position = pStartPositionsVector[pStartPositionsVector.size()-1];
+					startPosition = (pStartPositionsVector[i] - buffer);
+
+					//startPosition = position - buffer;
+					endPosition = startPosition + _tcslen(szFindWhat);
+
+					// Select the found text in the main text editor control
+					SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+					break;
+				}
+
+				int currentWordsPosition = (pStartPositionsVector[i - 1] - buffer);
+				if ((currentWordsPosition < (position - buffer) - 1))
+				{
+					std::wstring posStr = std::to_wstring((pStartPositionsVector[i - 1]) - buffer) + L"\n";
+					OutputDebugString(posStr.c_str());
+
+					position = pStartPositionsVector[i - 1];
+					startPosition = currentWordsPosition;
+
+					//startPosition = position - buffer;
+					endPosition = startPosition + _tcslen(szFindWhat);
+
+					// Select the found text in the main text editor control
+					SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+					break;
+				}
+			}
+
+		}
+		else
+		{
+			std::wstring message = L"Text instances found: " + std::to_wstring(wordCount);
+			MessageBox(hwndDlg, message.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
+		}
 
 	}
 
 	delete[] buffer;
 
-	if (counter > 0)
-	{
-		// At least one occurrence was found
-		return true;
-	}
-	else
-	{
-		// No occurrences were found
-		position = nullptr;  // Reset position to null for the next search
-		MessageBox(hwndDlg, TEXT("Text not found."), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
-		counter = 0;
-		return false;
-	}
+	return true;
+
 }
 
 void ReplaceTextWith(HWND hwndDlg)
