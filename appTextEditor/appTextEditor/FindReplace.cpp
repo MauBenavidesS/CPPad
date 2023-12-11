@@ -86,10 +86,11 @@ bool FindNext(HWND hwndDlg)
 
 			for (size_t i = pStartPositionsVector.size()-1; i > 0; --i)
 			{
-				if ((position - buffer) == 0)
+				// if pointer is null, the pointer is set to the last word's position.
+				if ((position - buffer) == 0) 
 				{
 					position = pStartPositionsVector[pStartPositionsVector.size()-1];
-					startPosition = (pStartPositionsVector[i] - buffer);
+					startPosition = (position - buffer);
 
 					//startPosition = position - buffer;
 					endPosition = startPosition + _tcslen(szFindWhat);
@@ -99,8 +100,23 @@ bool FindNext(HWND hwndDlg)
 					break;
 				}
 
+				// if the pointer is in the first word, set the pointer to the last word's position
+				if ((position - buffer) == (pStartPositionsVector[0] - buffer)) 
+				{
+					position = pStartPositionsVector[pStartPositionsVector.size() - 1];
+					startPosition = (position - buffer);
+
+					//startPosition = position - buffer;
+					endPosition = startPosition + _tcslen(szFindWhat);
+
+					// Select the found text in the main text editor control
+					SendMessage(hEdit, EM_SETSEL, startPosition, endPosition);
+					break;
+				}
+
+				// set the pointer to the previous word
 				int currentWordsPosition = (pStartPositionsVector[i - 1] - buffer);
-				if ((currentWordsPosition < (position - buffer) - 1))
+				if ((currentWordsPosition < (position - buffer)))
 				{
 					position = pStartPositionsVector[i - 1];
 					startPosition = currentWordsPosition;
