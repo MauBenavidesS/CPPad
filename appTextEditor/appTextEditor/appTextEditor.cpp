@@ -23,8 +23,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	case WM_CREATE:
 	{
 		// Create the edit control
-		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT("Hola, buenas tardes"),
-			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
+			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL,
 			0, 0, 500, 300, hWnd, (HMENU)1, GetModuleHandle(NULL), NULL);
 		g_nZoomFactor = 20;
 		HFONT hNewFont = CreateFont(20, 0, 0, 0, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
