@@ -13,9 +13,12 @@ TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
 
 TCHAR* position = nullptr;  // Use static variable to maintain position between calls
-bool DOWN = TRUE;
-bool UP = FALSE;
-bool DIRECTION;
+
+enum DIRECTION {
+	DOWN,
+	UP
+};
+DIRECTION currentDirection = DOWN;
 
 bool FindNext(HWND hwndDlg)
 {
@@ -51,7 +54,7 @@ bool FindNext(HWND hwndDlg)
 	}
 	wordCount = pStartPositionsVector.size();
 
-	if (DIRECTION == DOWN)
+	if (currentDirection == DIRECTION::DOWN)
 	{
 		if ((position = _tcsstr(position, szFindWhat)) != NULL)
 		{
@@ -71,7 +74,7 @@ bool FindNext(HWND hwndDlg)
 			MessageBox(hwndDlg, message.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);
 		}
 	}
-	else if (DIRECTION == UP)
+	else if (currentDirection == DIRECTION::UP)
 	{
 
 		/*std::wstring str = std::to_wstring(instanceCount) + TEXT(" Instances of the word were found.");
@@ -212,7 +215,6 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 		// Initialization code
 		SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_UNCHECKED, 0);
-		DIRECTION = DOWN;
 		return TRUE;
 
 	case WM_COMMAND:
@@ -226,7 +228,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			else {
 				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_UP), BM_SETCHECK, BST_CHECKED, 0);
 			}
-			DIRECTION = UP;
+			currentDirection = DIRECTION::UP;
 			return 0;
 
 		case IDC_DIRECTION_DOWN:
@@ -238,7 +240,7 @@ INT_PTR  CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wPara
 			else {
 				SendMessage(GetDlgItem(hwndDlg, IDC_DIRECTION_DOWN), BM_SETCHECK, BST_CHECKED, 0);
 			}
-			DIRECTION = DOWN;
+			currentDirection = DIRECTION::DOWN;
 			return 0;
 
 		case IDC_FIND_NEXT:
