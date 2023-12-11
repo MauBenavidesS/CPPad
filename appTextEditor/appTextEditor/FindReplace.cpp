@@ -141,6 +141,8 @@ bool FindNext(HWND hwndDlg)
 
 	delete[] buffer;
 
+	// Scroll the caret into view
+	SendMessage(hEdit, EM_SCROLLCARET, 0, 0);
 	return true;
 
 }
