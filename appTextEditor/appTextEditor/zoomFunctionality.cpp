@@ -4,6 +4,25 @@
 #include "Resource.h"
 #include "globals.h"
 
+void MouseWheelZoom(HWND hEdit, WPARAM wParam)
+{
+	short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+	// Check if the Ctrl key is pressed
+	if (GetKeyState(VK_CONTROL) & 0x8000) {
+		// Ctrl key is pressed, adjust font size based on mouse wheel direction
+		if (zDelta > 0) {
+			// Mouse wheel scrolled up
+			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
+		}
+		else {
+			// Mouse wheel scrolled down
+			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
+		}
+	}
+
+}
+
 void AdjustFontSize(HWND& hEdit, int& g_nZoomFactor, int change) {
 
 	if (g_nZoomFactor+change >0 && g_nZoomFactor + change < 100) {

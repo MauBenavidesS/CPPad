@@ -4,14 +4,13 @@
 #include "globals.h"
 #include "zoomFunctionality.h"
 
-
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
-int g_nZoomFactor = 10;
 
 void OpenFile(HWND hWnd);
 void SaveFile(HWND hWnd);
 
+int g_nZoomFactor = 10;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -41,7 +40,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		{
 		case IDM_OPEN:
 			OpenFile(hWnd);
-			g_nZoomFactor = 20;
 			AdjustFontSize(hEdit, g_nZoomFactor, 0);
 			break;
 		case IDM_SAVE:
@@ -54,28 +52,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ZOOM), NULL, AdjustFontSizeProc);
 			break;
 		}
+	}
 	case WM_MOUSEWHEEL:
 	{
-		short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-
-		// Check if the Ctrl key is pressed
-		if (GetKeyState(VK_CONTROL) & 0x8000) {
-			// Ctrl key is pressed, adjust font size based on mouse wheel direction
-			if (zDelta > 0) {
-				// Mouse wheel scrolled up
-				AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
-			}
-			else {
-				// Mouse wheel scrolled down
-				AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
-			}
-		}
-
+		MouseWheelZoom(hEdit, wParam);
 		break;
-	}
-
-	break;
-
 	}
 	case WM_SIZE:
 	{
