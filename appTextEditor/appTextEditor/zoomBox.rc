@@ -1,0 +1,12 @@
+#include "winresrc.h"
+#include "resource.h"
+
+IDD_ZOOM DIALOGEX 0, 0, 200, 40
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Zoom"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+	DEFPUSHBUTTON   "Zoom In", ID_ZOOM_IN, 10, 10, 60, 20
+	PUSHBUTTON      "Zoom Out", ID_ZOOM_OUT, 80, 10, 60, 20
+	PUSHBUTTON      "Close", IDCANCEL, 150, 10, 40, 20
+END

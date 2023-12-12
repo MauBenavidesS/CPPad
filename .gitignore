@@ -429,9 +429,7 @@ FodyWeavers.xsd
 *.exe
 *.out
 *.app
-*.sln
 *.ico
-*.rc
 *.vcxproj
 *.filters
 appTextEditor/.vs/*
