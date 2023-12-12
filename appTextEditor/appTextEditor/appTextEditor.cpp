@@ -7,7 +7,7 @@
 
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
-int g_nZoomFactor = 100;
+int g_nZoomFactor = 10;
 
 void OpenFile(HWND hWnd);
 void SaveFile(HWND hWnd);
@@ -26,7 +26,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
 			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL,
 			0, 0, 500, 300, hWnd, (HMENU)1, GetModuleHandle(NULL), NULL);
-		g_nZoomFactor = 20;
 		HFONT hNewFont = CreateFont(20, 0, 0, 0, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 			FALSE, FALSE, FALSE, FALSE);
 		SendMessage(hEdit, WM_SETFONT, (WPARAM)hNewFont, TRUE);
