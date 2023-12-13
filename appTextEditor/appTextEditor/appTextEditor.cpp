@@ -3,14 +3,12 @@
 #include <tchar.h>
 #include "globals.h"
 #include "zoomFunctionality.h"
+#include "OpenSave.h"
 
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
 
-void OpenFile(HWND hWnd);
-void SaveFile(HWND hWnd);
-
-int g_nZoomFactor = 10;
+int g_nZoomFactor = 20;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
