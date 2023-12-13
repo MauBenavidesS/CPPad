@@ -7,16 +7,17 @@
 
 void MouseWheelZoom(HWND hEdit, WPARAM wParam)
 {
-	short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+	int zDelta = 0;
+	zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 
 	// Check if the Ctrl key is pressed
-	if (GetKeyState(VK_CONTROL) & 0x8000) {
+	if (GetKeyState(VK_CONTROL) & 0x8000 && (zDelta != 0)) {
 		// Ctrl key is pressed, adjust font size based on mouse wheel direction
-		if (zDelta > 0) {
+		if (zDelta == 120) {
 			// Mouse wheel scrolled up
 			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMIN_FACTOR);
 		}
-		else {
+		else if (zDelta == -120) {
 			// Mouse wheel scrolled down
 			AdjustFontSize(hEdit, g_nZoomFactor, ZOOMOUT_FACTOR);
 		}
