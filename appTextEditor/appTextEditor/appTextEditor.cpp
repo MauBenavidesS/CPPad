@@ -1,17 +1,15 @@
 #include <windows.h>
+#include "globals.h"
 #include "resource.h"
 #include <tchar.h>
-#include "globals.h"
-#include "zoomFunctionality.h"
+#include "FindReplace.h"
 #include "OpenSave.h"
+#include "zoomFunctionality.h"
 
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
 
 int g_nZoomFactor = 20;
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)

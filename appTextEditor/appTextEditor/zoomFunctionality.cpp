@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "zoomFunctionality.h"
 #include <iostream>
 #include <string>
