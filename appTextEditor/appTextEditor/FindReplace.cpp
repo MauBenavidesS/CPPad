@@ -1,13 +1,12 @@
 #include <windows.h>
 #include "resource.h"
 #include "globals.h"
-
-#include <atlbase.h>
-#include <atlapp.h> // must be included
-#include <string>
 #include <tchar.h>
 #include <vector>
-#include <algorithm>
+#include <string>
+
+#include <atlbase.h>
+#include <atlapp.h> // Must Download WTL and add it to Additional Libraries' include path
 
 TCHAR szFindWhat[256];
 TCHAR szReplaceWith[256];
@@ -76,10 +75,6 @@ bool FindNext(HWND hwndDlg)
 	}
 	else if (currentDirection == DIRECTION::UP)
 	{
-
-		/*std::wstring str = std::to_wstring(instanceCount) + TEXT(" Instances of the word were found.");
-		MessageBox(hwndDlg, str.c_str(), TEXT("Information"), MB_OK | MB_ICONINFORMATION);*/
-		
 		if (!pStartPositionsVector.empty())
 		{
 			std::wstring posStr = std::to_wstring((position) - buffer) + L"\n";

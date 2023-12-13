@@ -1,10 +1,4 @@
-// globals.h
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#pragma once
 
 extern HWND hEdit;
 extern int g_nZoomFactor;
-
-#endif // GLOBALS_H
-
-
