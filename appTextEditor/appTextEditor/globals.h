@@ -1,7 +1,4 @@
-// globals.h
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#pragma once
 
-extern HWND hEdit;  // Forward declaration
-
-#endif // GLOBALS_H
+extern HWND hEdit;
+extern int g_nZoomFactor;

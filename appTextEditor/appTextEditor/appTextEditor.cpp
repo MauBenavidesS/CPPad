@@ -1,16 +1,15 @@
 #include <windows.h>
+#include "globals.h"
 #include "resource.h"
 #include <tchar.h>
-#include "globals.h"
+#include "FindReplace.h"
+#include "OpenSave.h"
+#include "zoomFunctionality.h"
 
 HINSTANCE hInst = GetModuleHandle(NULL);
 HWND hEdit = NULL;
 
-void OpenFile(HWND hWnd);
-void SaveFile(HWND hWnd);
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-INT_PTR CALLBACK FindReplaceDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+int g_nZoomFactor = 20;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)
@@ -20,9 +19,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 		// Create the edit control
 		hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
-			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL,
 			0, 0, 500, 300, hWnd, (HMENU)1, GetModuleHandle(NULL), NULL);
-
+		HFONT hNewFont = CreateFont(20, 0, 0, 0, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+			FALSE, FALSE, FALSE, FALSE);
+		SendMessage(hEdit, WM_SETFONT, (WPARAM)hNewFont, TRUE);
 		// Load the custom menu from the resource file
 		HMENU hMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDC_MAIN));
 		SetMenu(hWnd, hMenu);
@@ -35,6 +36,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		{
 		case IDM_OPEN:
 			OpenFile(hWnd);
+			AdjustFontSize(hEdit, g_nZoomFactor, 0);
 			break;
 		case IDM_SAVE:
 			SaveFile(hWnd);
@@ -42,9 +44,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		case IDD_FIND_DIALOG:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_FIND_DIALOG), NULL, FindReplaceDialogProc);
 			break;
+		case IDM_ZOOM:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ZOOM), NULL, AdjustFontSizeProc);
+			break;
 		}
+	}
+	case WM_MOUSEWHEEL:
+	{
+		MouseWheelZoom(hEdit, wParam);
 		break;
-
 	}
 	case WM_SIZE:
 	{

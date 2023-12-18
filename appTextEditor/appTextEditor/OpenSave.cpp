@@ -1,8 +1,7 @@
 #include <windows.h>
+#include "globals.h"
 #include "resource.h"
 #include <tchar.h>
-
-#include "globals.h"
 
 TCHAR g_szFileName[MAX_PATH];
 

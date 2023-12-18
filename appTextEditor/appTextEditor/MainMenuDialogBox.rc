@@ -5,12 +5,13 @@ IDC_MAIN MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&Open",                IDM_OPEN
-        MENUITEM "&Save",                IDM_SAVE
-        MENUITEM "E&xit",                IDM_EXIT
+        MENUITEM "&Open",           IDM_OPEN
+        MENUITEM "&Save",           IDM_SAVE
+        MENUITEM "E&xit",           IDM_EXIT
     END
     POPUP "&Edit"
     BEGIN
-        MENUITEM "&Find",               IDD_FIND_DIALOG
+        MENUITEM "&Find",           IDD_FIND_DIALOG
     END
+    MENUITEM "&Zoom",               IDM_ZOOM    
 END
